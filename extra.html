@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英単語テスト</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .question {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .word {
+            font-size: 36px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            background: #f8f9fa;
+            border-color: #3498db;
+        }
+
+        .option.correct {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+
+        .option.incorrect {
+            background: #e74c3c;
+            color: white;
+            border-color: #e74c3c;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .next-btn:hover {
+            background: #2980b9;
+        }
+
+        .next-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+
+        .result {
+            text-align: center;
+            display: none;
+        }
+
+        .result h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .restart-btn {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .restart-btn:hover {
+            background: #229954;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>英単語テスト</h1>
+        
+        <div id="quiz" class="quiz">
+            <div class="score-board">
+                <span>問題: <span id="current-question">1</span>/10</span>
+                <span>正解数: <span id="score">0</span></span>
+            </div>
+            
+            <div class="question">
+                <div class="word" id="word">apple</div>
+                <div class="options" id="options">
+                    <button class="option" onclick="selectAnswer(0)">りんご</button>
+                    <button class="option" onclick="selectAnswer(1)">みかん</button>
+                    <button class="option" onclick="selectAnswer(2)">バナナ</button>
+                    <button class="option" onclick="selectAnswer(3)">いちご</button>
+                </div>
+            </div>
+            
+            <button id="next-btn" class="next-btn" onclick="nextQuestion()" disabled>次の問題</button>
+        </div>
+
+        <div id="result" class="result">
+            <h2>テスト完了！</h2>
+            <p>あなたの得点: <span id="final-score">0</span>/10</p>
+            <button class="restart-btn" onclick="restartQuiz()">もう一度挑戦</button>
+        </div>
+    </div>
+
+    <script>
+        const wordData = [
+            { word: "apple", options: ["りんご", "みかん", "バナナ", "いちご"], correct: 0 },
+            { word: "cat", options: ["犬", "猫", "鳥", "魚"], correct: 1 },
+            { word: "book", options: ["ペン", "紙", "本", "机"], correct: 2 },
+            { word: "water", options: ["火", "土", "空気", "水"], correct: 3 },
+            { word: "sun", options: ["太陽", "月", "星", "雲"], correct: 0 },
+            { word: "dog", options: ["猫", "犬", "鳥", "魚"], correct: 1 },
+            { word: "car", options: ["飛行機", "船", "車", "電車"], correct: 2 },
+            { word: "house", options: ["学校", "病院", "店", "家"], correct: 3 },
+            { word: "flower", options: ["花", "木", "草", "葉"], correct: 0 },
+            { word: "music", options: ["絵", "音楽", "映画", "本"], correct: 1 }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = -1;
+
+        function displayQuestion() {
+            const data = wordData[currentQuestion];
+            document.getElementById('word').textContent = data.word;
+            document.getElementById('current-question').textContent = currentQuestion + 1;
+            document.getElementById('score').textContent = score;
+            
+            const optionButtons = document.getElementsByClassName('option');
+            for (let i = 0; i < optionButtons.length; i++) {
+                optionButtons[i].textContent = data.options[i];
+                optionButtons[i].className = 'option';
+                optionButtons[i].disabled = false;
+            }
+            
+            document.getElementById('next-btn').disabled = true;
+            selectedAnswer = -1;
+        }
+
+        function selectAnswer(index) {
+            selectedAnswer = index;
+            const data = wordData[currentQuestion];
+            const optionButtons = document.getElementsByClassName('option');
+            
+            // 全ての選択肢を無効化
+            for (let i = 0; i < optionButtons.length; i++) {
+                optionButtons[i].disabled = true;
+            }
+            
+            // 正解と不正解をマーク
+            optionButtons[data.correct].classList.add('correct');
+            if (selectedAnswer !== data.correct) {
+                optionButtons[selectedAnswer].classList.add('incorrect');
+            } else {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+            
+            document.getElementById('next-btn').disabled = false;
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < wordData.length) {
+                displayQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        function showResult() {
+            document.getElementById('quiz').style.display = 'none';
+            document.getElementById('result').style.display = 'block';
+            document.getElementById('final-score').textContent = score;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = -1;
+            
+            document.getElementById('quiz').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+            
+            displayQuestion();
+        }
+
+        // 初期化
+        displayQuestion();
+    </script>
+</body>
+</html>
