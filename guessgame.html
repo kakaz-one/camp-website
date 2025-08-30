@@ -11,6 +11,10 @@
     #guessGame input {
       width: 200px;
     }
+
+    #resetButton {
+      margin-left: 10px;
+    }
   </style>
 </head>
 <body>
@@ -22,6 +26,8 @@
     <label for="guessField">予想: </label>
     <input type="number" min="1" max="100" id="guessField">
     <input type="submit" value="予想を入力" id="guessSubmit">
+    <input type="button" value="リセット" id="resetButton">
+    <p>残り試行回数: <span id="remainingAttempts">5</span></p>
     <p id="guessResult"></p>
   </div>
 </main>
@@ -31,11 +37,21 @@
   let answerNumber = Math.floor(Math.random() * 100) + 1;
   console.log('正解は' + answerNumber);
 
+  // 試行回数を管理
+  let attemptCount = 0;
+  const maxAttempts = 5;
+
   // 数値入力フィールドを取得
   let guessField = document.querySelector('#guessField');
 
   // submitボタンを取得
   let guessSubmit = document.querySelector('#guessSubmit');
+
+  // リセットボタンを取得
+  let resetButton = document.querySelector('#resetButton');
+
+  // 残り試行回数を表示する要素を取得
+  let remainingAttempts = document.querySelector('#remainingAttempts');
 
   // 結果を表示する要素を取得
   let guessResult = document.querySelector('#guessResult');
@@ -44,18 +60,64 @@
   function checkGuess() {
     // ユーザの入力した値を取得
     let userGuess = Number(guessField.value);
-
+    
+    // 試行回数を増やす
+    attemptCount++;
+    
     if (userGuess === answerNumber) { // ユーザの入力が正解
-      guessResult.textContent = '正解です！';
+      guessResult.textContent = `正解です！${attemptCount}回で正解しました！新しいゲームを始めるにはリセットボタンを押してください。`;
+      guessSubmit.disabled = true;
+      guessField.disabled = true;
+    } else if (attemptCount >= maxAttempts) { // 試行回数上限に達した
+      guessResult.textContent = `ゲームオーバー！正解は${answerNumber}でした。新しいゲームを始めるにはリセットボタンを押してください。`;
+      guessSubmit.disabled = true;
+      guessField.disabled = true;
     } else if (userGuess < answerNumber) { // ユーザの入力が正解より小さい
       guessResult.textContent = 'もっと大きいです';
     } else if (userGuess > answerNumber) { // ユーザの入力が正解より大きい
       guessResult.textContent = 'もっと小さいです';
     }
+    
+    // 残り試行回数を更新
+    remainingAttempts.textContent = maxAttempts - attemptCount;
+  }
+
+  // ゲームをリセットする関数
+  function resetGame() {
+    // 新しい正解数値を生成
+    answerNumber = Math.floor(Math.random() * 100) + 1;
+    console.log('正解は' + answerNumber);
+    
+    // 試行回数をリセット
+    attemptCount = 0;
+    
+    // 入力フィールドと結果表示をクリア
+    guessField.value = '';
+    guessResult.textContent = '';
+    
+    // 残り試行回数を表示
+    remainingAttempts.textContent = maxAttempts;
+    
+    // ボタンと入力フィールドを有効化
+    guessSubmit.disabled = false;
+    guessField.disabled = false;
+    
+    // 入力フィールドにフォーカスを戻す
+    guessField.focus();
   }
 
   // submitがクリックされたときに、checkGuess関数を呼び出す
   guessSubmit.addEventListener('click', checkGuess);
+
+  // リセットボタンがクリックされたときに、resetGame関数を呼び出す
+  resetButton.addEventListener('click', resetGame);
+
+  // Enterキーでも予想を送信できるようにする
+  guessField.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      checkGuess();
+    }
+  });
 </script>
 
 </body>
