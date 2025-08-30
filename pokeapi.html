@@ -4,25 +4,250 @@
   <title>今日のポケモン</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
   <style>
-    #pokemon {
-      width: 300px;
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Arial', sans-serif;
+    }
+
+    .pokedex-container {
+      max-width: 500px;
+      margin: 2rem auto;
+      padding: 0;
+    }
+
+    .pokedex {
+      background: linear-gradient(145deg, #2c3e50, #34495e);
+      border-radius: 25px;
+      padding: 2rem;
+      box-shadow: 
+        0 20px 40px rgba(0,0,0,0.3),
+        inset 0 2px 4px rgba(255,255,255,0.1);
+      border: 3px solid #1a252f;
+      position: relative;
+    }
+
+    .pokedex::before {
+      content: '';
+      position: absolute;
+      top: 15px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, #3498db, #2980b9);
+      border-radius: 50%;
+      box-shadow: 
+        0 0 20px rgba(52, 152, 219, 0.6),
+        inset 0 2px 10px rgba(255,255,255,0.3);
+    }
+
+    .pokedex::after {
+      content: '';
+      position: absolute;
+      top: 25px;
+      left: 30px;
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle at 30% 30%, #74b9ff, #0984e3);
+      border-radius: 50%;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .indicator-lights {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #e74c3c, #c0392b);
+      box-shadow: 0 0 8px rgba(231, 76, 60, 0.6);
+    }
+
+    .indicator:nth-child(2) {
+      background: radial-gradient(circle at 30% 30%, #f39c12, #e67e22);
+      box-shadow: 0 0 8px rgba(243, 156, 18, 0.6);
+    }
+
+    .indicator:nth-child(3) {
+      background: radial-gradient(circle at 30% 30%, #27ae60, #229954);
+      box-shadow: 0 0 8px rgba(39, 174, 96, 0.6);
+    }
+
+    .screen {
+      background: linear-gradient(145deg, #1a1a2e, #16213e);
+      border: 4px solid #0f3460;
+      border-radius: 15px;
+      padding: 1.5rem;
+      margin: 4rem 0 2rem 0;
+      box-shadow: 
+        inset 0 0 20px rgba(0,0,0,0.8),
+        0 0 10px rgba(15, 52, 96, 0.5);
+      text-align: center;
+      position: relative;
+    }
+
+    .screen::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #74b9ff, #0984e3, #74b9ff);
+      border-radius: 17px;
+      z-index: -1;
+    }
+
+    .pokemon-id {
+      color: #74b9ff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 10px rgba(116, 185, 255, 0.8);
     }
 
     #pokemonImage {
-      width: 100%;
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
+      border-radius: 10px;
+      margin: 1rem 0;
+      filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));
+    }
+
+    .pokemon-name {
+      color: #ecf0f1;
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 1rem 0;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      letter-spacing: 1px;
+    }
+
+    .pokemon-type {
+      color: #bdc3c7;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
+      background: rgba(52, 73, 94, 0.8);
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      display: inline-block;
+      border: 2px solid rgba(116, 185, 255, 0.3);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .btn {
+      background: linear-gradient(145deg, #e74c3c, #c0392b);
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 
+        0 4px 15px rgba(231, 76, 60, 0.4),
+        inset 0 1px 2px rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 6px 20px rgba(231, 76, 60, 0.6),
+        inset 0 1px 2px rgba(255,255,255,0.2);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .loading {
+      color: #74b9ff;
+      font-size: 1.2rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    .title {
+      color: #ecf0f1;
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      letter-spacing: 2px;
+    }
+
+    .d-pad {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 60px;
+      height: 60px;
+    }
+
+    .d-pad::before, .d-pad::after {
+      content: '';
+      position: absolute;
+      background: linear-gradient(145deg, #34495e, #2c3e50);
+      border: 2px solid #1a252f;
+    }
+
+    .d-pad::before {
+      width: 20px;
+      height: 60px;
+      left: 20px;
+      border-radius: 10px;
+    }
+
+    .d-pad::after {
+      width: 60px;
+      height: 20px;
+      top: 20px;
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
 
-<main class="container">
-  <h1>今日のポケモン</h1>
+<main class="container pokedex-container">
+  <h1 class="title">ポケモン図鑑</h1>
   
-  <div id="pokemon">
-    <img id="pokemonImage" src="">
-    <h2 id="pokemonName"></h2>
-    <h3 id="pokemonGenera">状態：</h3>
+  <div class="pokedex">
+    <div class="indicator-lights">
+      <div class="indicator"></div>
+      <div class="indicator"></div>
+      <div class="indicator"></div>
+    </div>
     
+    <div class="screen">
+      <img id="pokemonImage" src="" alt="ポケモンの画像">
+      <div class="pokemon-name" id="pokemonName">読み込み中...</div>
+      <div class="pokemon-type" id="pokemonGenera">---</div>
+    </div>
+    
+
+    
+    <div class="d-pad"></div>
   </div>
 </main>
 
