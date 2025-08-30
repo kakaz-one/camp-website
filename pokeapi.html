@@ -21,6 +21,7 @@
   <div id="pokemon">
     <img id="pokemonImage" src="">
     <h2 id="pokemonName"></h2>
+    <h3 id="pokemonGenera">状態：</h3>
     
   </div>
 </main>
@@ -31,6 +32,9 @@
 
   // ポケモンの画像を表示する要素を取得
   let pokemonImage = document.getElementById('pokemonImage');
+
+  //ポケモンの進化状態を表示する要素を取得
+  let pokemonGenera = document.getElementById('pokemonGenera');
 
   // ポケモンは現在898種
   let pokemonNumber = Math.floor(Math.random() * 898) + 1;
@@ -57,6 +61,10 @@
       .then(function(data){
         //ポケモンの日本語名を表示
         pokemonName.textContent = data.names[0].name;
+
+        //ポケモンの進化状態を表示
+        pokemonGenera.textContent = data.genera[0].genus;
+
       })
 
       
