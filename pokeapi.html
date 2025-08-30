@@ -121,7 +121,10 @@
       margin: 1rem 0;
       filter: drop-shadow(0 0 15px rgba(255,255,255,0.3));
     }
-
+    .pokemon-number{
+    color:whitesmoke;
+    font-size: 2rem;
+    }
     .pokemon-name {
       color: #ecf0f1;
       font-size: 2rem;
@@ -240,6 +243,7 @@
     </div>
     
     <div class="screen">
+      <div class="pokemon-number" id="pokemonNumber">読み込み中...</div>
       <img id="pokemonImage" src="" alt="ポケモンの画像">
       <div class="pokemon-name" id="pokemonName">読み込み中...</div>
       <div class="pokemon-type" id="pokemonGenera">---</div>
@@ -252,6 +256,8 @@
 </main>
 
 <script>
+
+  let pokemonNumberElement = document.getElementById('pokemonNumber'); 
   // ポケモンの名前を表示する要素を取得
   let pokemonName = document.getElementById('pokemonName');
 
@@ -292,7 +298,8 @@
 
       })
 
-      
+      //ポケモン番号を表示
+      pokemonNumberElement.textContent = `No. ${data.id}`; // 修正: 正しい要素に代入
 
       // ポケモンの画像を表示
       pokemonImage.src = data.sprites.front_default;
